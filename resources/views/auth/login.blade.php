@@ -5,17 +5,23 @@
 @section('content')
 <div class="min-h-screen w-full flex flex-col lg:flex-row bg-[#F8FAFC]">
     
-    <!-- Left Hero Column: Brand & Catchy AI Header (Reference Image 2) -->
-    <div class="w-full lg:w-1/2 bg-gradient-to-br from-[#00105B] via-[#083A9C] to-[#0B57D0] text-white p-8 sm:p-12 lg:p-16 flex flex-col justify-between relative overflow-hidden">
+    <!-- Left Hero Column: Brand & Catchy AI Header with Building Background -->
+    <div class="w-full lg:w-1/2 text-white p-8 sm:p-12 lg:p-16 flex flex-col justify-between relative overflow-hidden"
+         style="background: linear-gradient(to bottom right, rgba(0,16,91,0.88) 0%, rgba(8,58,156,0.82) 50%, rgba(11,87,208,0.80) 100%);">
         
+        <!-- Building Background Image -->
+        <div class="absolute inset-0 z-0" style="background-image: url('{{ asset('images/gedung-unklab.jpg') }}'); background-size: cover; background-position: center center; background-repeat: no-repeat;"></div>
+        <!-- Dark Gradient Overlay -->
+        <div class="absolute inset-0 z-0" style="background: linear-gradient(135deg, rgba(0,16,91,0.88) 0%, rgba(8,58,156,0.78) 40%, rgba(11,87,208,0.72) 100%);"></div>
+
         <!-- Subtle Watermark Background Pattern -->
-        <div class="absolute -right-12 -bottom-16 text-9xl font-black text-white/5 select-none pointer-events-none tracking-widest">
+        <div class="absolute -right-12 -bottom-16 text-9xl font-black text-white/5 select-none pointer-events-none tracking-widest z-10">
             UNKLAB
         </div>
-        <div class="absolute -top-24 -left-24 w-80 h-80 rounded-full bg-white/5 blur-3xl pointer-events-none"></div>
+        <div class="absolute -top-24 -left-24 w-80 h-80 rounded-full bg-white/5 blur-3xl pointer-events-none z-10"></div>
 
         <!-- Top Section: Education Squircle Icon -->
-        <div class="relative z-10">
+        <div class="relative" style="z-index:20;">
             <div class="w-14 h-14 rounded-2xl bg-amber-400 text-[#00105B] flex items-center justify-center shadow-lg mb-8 sm:mb-12">
                 <!-- Graduation Cap Icon -->
                 <svg class="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
@@ -24,7 +30,7 @@
             </div>
 
             <!-- Headline & Subtitle matching Reference 2 -->
-            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-[1.15] text-white max-w-xl">
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-[1.15] text-white max-w-xl" style="text-shadow: 0 2px 12px rgba(0,0,0,0.3);">
                 Daftar, verifikasi berkas, dan raih masa depan di Universitas Klabat.
             </h1>
             <p class="text-blue-100/90 text-xs sm:text-sm lg:text-base leading-relaxed mt-4 sm:mt-5 max-w-lg">
@@ -33,7 +39,7 @@
         </div>
 
         <!-- Bottom Feature / Badge Tag -->
-        <div class="relative z-10 mt-10 pt-6 border-t border-white/10 flex items-center gap-2 text-xs font-semibold text-amber-300">
+        <div class="relative mt-10 pt-6 border-t border-white/20 flex items-center gap-2 text-xs font-semibold text-amber-300" style="z-index:20;">
             <svg class="w-4 h-4 text-amber-300 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
             </svg>
