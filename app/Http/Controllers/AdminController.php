@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class AdminController extends Controller
 {
@@ -84,6 +85,8 @@ class AdminController extends Controller
             'age_formatted' => $selectedApplicant->age_formatted,
             'is_under_17' => (bool)$selectedApplicant->is_under_17,
             'status' => $selectedApplicant->status,
+            'card_sent' => !empty($selectedApplicant->confirmation_email_sent_at),
+            'card_sent_at' => $selectedApplicant->confirmation_email_sent_at ? $selectedApplicant->confirmation_email_sent_at->format('d M Y, H:i') . ' WITA' : null,
             'documents' => $selectedApplicant->documents->map(fn($d) => [
                 'id' => $d->id,
                 'type' => $d->document_type,
@@ -158,8 +161,61 @@ class AdminController extends Controller
             'faculty' => $applicant->faculty,
             'study_program' => $applicant->study_program,
             'status' => $applicant->status,
+            'card_sent' => !empty($applicant->confirmation_email_sent_at),
+            'card_sent_at' => $applicant->confirmation_email_sent_at ? $applicant->confirmation_email_sent_at->format('d M Y, H:i') . ' WITA' : null,
             'documents' => $docsFormatted,
         ]);
+    }
+
+    /**
+     * Send official registration card to applicant's email with congratulations message.
+     */
+    public function sendCardEmail(Request $request, $id)
+    {
+        $applicant = Application::with(['user', 'documents'])->findOrFail($id);
+
+        if (!$applicant->user || !$applicant->user->email) {
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Alamat email calon mahasiswa tidak ditemukan.'], 422);
+            }
+            return back()->with('error', 'Alamat email calon mahasiswa tidak ditemukan.');
+        }
+
+        if (!$applicant->registration_number) {
+            $padNumber = str_pad($applicant->id, 4, '0', STR_PAD_LEFT);
+            $applicant->registration_number = "PMB-UNKLAB-2026-{$padNumber}";
+        }
+
+        $customNote = $request->input('note', 'Selamat! Anda telah berhasil menyelesaikan tahapan pendaftaran PMB di Universitas Klabat.');
+
+        try {
+            Mail::to($applicant->user->email)->send(new RegistrationCardMail($applicant, $customNote));
+
+            $applicant->confirmation_email_sent_at = Carbon::now();
+            $applicant->save();
+
+            $msg = "Kartu tanda bukti pendaftaran dan ucapan selamat berhasil dikirim ke email ({$applicant->user->email}).";
+
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $msg,
+                    'card_sent' => true,
+                    'card_sent_at' => $applicant->confirmation_email_sent_at->format('d M Y, H:i') . ' WITA',
+                ]);
+            }
+
+            return back()->with('success', $msg);
+        } catch (\Throwable $e) {
+            Log::error('Admin send card email failed: ' . $e->getMessage());
+
+            $err = "Gagal mengirim email: {$e->getMessage()}. Silakan periksa pengaturan SMTP Gmail di .env.";
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $err], 500);
+            }
+
+            return back()->with('error', $err);
+        }
     }
 
     /**
@@ -173,7 +229,9 @@ class AdminController extends Controller
         // Send approval notification email
         if ($applicant->user && $applicant->user->email) {
             try {
-                Mail::to($applicant->user->email)->send(new RegistrationCardMail($applicant));
+                Mail::to($applicant->user->email)->send(new RegistrationCardMail($applicant, 'Selamat! Pendaftaran Anda di Universitas Klabat telah resmi DISETUJUI oleh Panitia PMB.'));
+                $applicant->confirmation_email_sent_at = Carbon::now();
+                $applicant->save();
             } catch (\Throwable $e) {
                 Log::error('Admin approve email failed: ' . $e->getMessage());
             }

@@ -14,13 +14,15 @@ class RegistrationCardMail extends Mailable
     use Queueable, SerializesModels;
 
     public Application $application;
+    public ?string $greetingNote;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(Application $application)
+    public function __construct(Application $application, ?string $greetingNote = null)
     {
         $this->application = $application->loadMissing(['user', 'documents']);
+        $this->greetingNote = $greetingNote;
     }
 
     /**
@@ -28,16 +30,10 @@ class RegistrationCardMail extends Mailable
      */
     public function envelope(): Envelope
     {
-        $statusLabel = match ($this->application->status) {
-            'approved' => '[DISETUJUI] ',
-            'rejected' => '[PEMBERITAHUAN] ',
-            default => '',
-        };
-
         $regNum = $this->application->registration_number ?? 'PMB-UNKLAB-2026';
 
         return new Envelope(
-            subject: "{$statusLabel}[PMB UNKLAB] Kartu Tanda Bukti Pendaftaran - {$regNum}",
+            subject: "🎉 Selamat! Kartu Tanda Bukti Pendaftaran PMB UNKLAB - {$regNum}",
         );
     }
 
@@ -51,13 +47,13 @@ class RegistrationCardMail extends Mailable
             with: [
                 'application' => $this->application,
                 'user' => $this->application->user,
+                'greetingNote' => $this->greetingNote,
             ],
         );
     }
 
     /**
      * Get the attachments for the message.
-     * Note: Requirement specifically states NO PDF attachment, render inline HTML directly.
      *
      * @return array<int, \Illuminate\Mail\Mailables\Attachment>
      */

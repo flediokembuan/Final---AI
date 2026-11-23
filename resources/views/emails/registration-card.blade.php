@@ -52,30 +52,44 @@
                         </td>
                     </tr>
 
-                    <!-- ===== GREETING SECTION ===== -->
+                    <!-- ===== GREETING & CONGRATULATIONS SECTION ===== -->
                     <tr>
                         <td style="padding: 24px 28px 16px 28px; background-color: #FFFFFF;">
-                            <h2 style="margin: 0 0 8px 0; font-size: 17px; font-weight: 800; color: #00105B;">
+                            <!-- Celebratory Hero Banner -->
+                            <div style="background: linear-gradient(135deg, #00105B 0%, #083A9C 50%, #0B57D0 100%); border-radius: 14px; padding: 20px 24px; margin-bottom: 20px; color: #FFFFFF; text-align: left; box-shadow: 0 6px 20px rgba(0, 16, 91, 0.15);">
+                                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                                    <tr>
+                                        <td>
+                                            <div style="display: inline-block; background-color: #F59E0B; color: #00105B; font-size: 10px; font-weight: 900; padding: 4px 12px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+                                                🎓 PMB UNIVERSITAS KLABAT
+                                            </div>
+                                            <h1 style="margin: 0 0 6px 0; font-size: 19px; font-weight: 900; line-height: 1.3; color: #FFFFFF; letter-spacing: -0.3px;">
+                                                🎉 Selamat! Anda Berhasil Menyelesaikan Pendaftaran
+                                            </h1>
+                                            <p style="margin: 0; font-size: 12px; line-height: 1.6; color: #E0E7FF;">
+                                                Selamat kepada <strong>{{ $application->full_name ?? $user->name }}</strong>! Berkas dan data pendaftaran Anda telah berhasil diperiksa oleh Panitia PMB Universitas Klabat. Bersama email ini, kami melampirkan <strong>Kartu Tanda Bukti Pendaftaran Resmi</strong> Anda.
+                                            </p>
+                                            @if(!empty($greetingNote))
+                                                <div style="margin-top: 12px; padding: 10px 14px; background-color: rgba(255,255,255,0.12); border-left: 3px solid #F59E0B; border-radius: 6px; font-size: 11px; color: #FEF3C7; font-style: italic;">
+                                                    "{{ $greetingNote }}"
+                                                </div>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <h2 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 800; color: #00105B;">
                                 Yth. Sdr/i {{ $application->full_name ?? $user->name }},
                             </h2>
                             <p style="margin: 0 0 10px 0; font-size: 13px; line-height: 1.6; color: #374151;">
-                                Salam hangat dari <strong>Panitia Penerimaan Mahasiswa Baru (PMB) Universitas Klabat</strong>.
+                                Salam sejahtera dari <strong>Panitia Penerimaan Mahasiswa Baru (PMB) Universitas Klabat</strong>.
                             </p>
                             <p style="margin: 0 0 10px 0; font-size: 13px; line-height: 1.6; color: #374151;">
-                                Terima kasih telah menyelesaikan proses pengisian biodata dan pengunggahan berkas pendaftaran. Sistem <strong>AI Document Verifier PMB UNKLAB</strong> telah berhasil memeriksa seluruh berkas persyaratan wajib Anda secara otomatis dengan status <strong style="color: #059669;">LULUS AUDIT AI (100% Validated)</strong>.
+                                Kami menyampaikan apresiasi setinggi-tingginya atas kesungguhan Anda dalam menyelesaikan pengisian biodata, pemilihan program studi (<strong>{{ $application->study_program }}</strong>), dan pengunggahan berkas persyaratan. Seluruh berkas wajib Anda telah dinyatakan <strong>LULUS AUDIT AI (100% Validated)</strong> dan diverifikasi langsung oleh Admin Panitia PMB.
                             </p>
                             
-                            <!-- Status Notice Box -->
-                            <div style="background-color: #F4EFFC; border-left: 4px solid #6061B6; border-radius: 8px; padding: 12px 16px; margin: 12px 0;">
-                                <div style="font-size: 11px; font-weight: 800; color: #00105B; margin-bottom: 4px; text-transform: uppercase;">
-                                    STATUS SAAT INI: ANTRIAN PEMERIKSAAN AKHIR PANITIA PMB (1x24 JAM)
-                                </div>
-                                <div style="font-size: 11px; line-height: 1.5; color: #4B5563;">
-                                    Berkas Anda kini berada dalam antrean verifikasi akhir panitia kerja UNKLAB (estimasi <strong>1x24 jam kerja</strong>). Setelah disetujui, Anda akan menerima Surat Keputusan Penerimaan (SKL PMB) serta instruksi registrasi ulang dan pembayaran UKT via portal ini.
-                                </div>
-                            </div>
-
-                            <p style="margin: 12px 0 4px 0; font-size: 12px; color: #6B7280; font-weight: 600;">
+                            <p style="margin: 14px 0 6px 0; font-size: 12px; color: #6B7280; font-weight: 700;">
                                 Berikut adalah salinan resmi Kartu Tanda Bukti Pendaftaran elektronik Anda:
                             </p>
                         </td>

@@ -57,4 +57,5 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/applicant/{id}/detail', [AdminController::class, 'getApplicantDetail'])->name('applicant.detail');
     Route::post('/applicant/{id}/approve', [AdminController::class, 'approve'])->name('applicant.approve');
     Route::post('/applicant/{id}/reject', [AdminController::class, 'reject'])->name('applicant.reject');
+    Route::post('/applicant/{id}/send-card', [AdminController::class, 'sendCardEmail'])->name('applicant.send_card');
 });

@@ -149,6 +149,8 @@ class PmbController extends Controller
 
     /**
      * Finalize application and lock for admin approval.
+     * Note: Confirmation email is NOT sent automatically here.
+     * It is queued into Admin PMB dashboard, and Admin will send the card to applicant's email.
      */
     public function finalize()
     {
@@ -165,24 +167,10 @@ class PmbController extends Controller
             $application->status = 'submitted';
         }
 
-        // Send confirmation email (with visual HTML card) on first-time finalization
-        $emailSent = false;
-        if (empty($application->confirmation_email_sent_at) && $application->user && $application->user->email) {
-            try {
-                Mail::to($application->user->email)->send(new RegistrationCardMail($application));
-                $application->confirmation_email_sent_at = Carbon::now();
-                $emailSent = true;
-            } catch (\Throwable $e) {
-                Log::error('Failed sending registration confirmation email: ' . $e->getMessage());
-            }
-        }
-
+        // Pendaftaran masuk ke antrean Admin PMB (tidak dikirim otomatis)
         $application->save();
 
-        $message = 'Pendaftaran Anda berhasil disubmit dan menunggu approval Admin PMB.';
-        if ($emailSent) {
-            $message .= ' Kartu bukti pendaftaran resmi telah dikirim ke email ' . $application->user->email . '.';
-        }
+        $message = 'Pendaftaran dan berkas Anda berhasil disubmit! Data telah masuk ke antrean Panitia PMB UNKLAB. Admin akan memeriksa berkas dan mengirimkan Kartu Tanda Bukti Pendaftaran resmi langsung ke email Anda (' . ($application->user?->email ?? '') . ').';
 
         return redirect()->route('pmb.bukti')->with('success', $message);
     }

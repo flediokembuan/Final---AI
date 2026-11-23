@@ -64,29 +64,44 @@
 
     <!-- Email Confirmation Notification Banner -->
     @if($application->confirmation_email_sent_at)
-        <div class="mb-6 bg-[#FCF9EC] border border-unklab-periwinkle/30 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm no-print">
+        <div class="mb-6 bg-emerald-50/80 border border-emerald-200 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm no-print">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-unklab-navy text-white flex items-center justify-center flex-shrink-0 shadow-sm">
-                    <svg class="w-5 h-5 text-unklab-lavender" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
-                        <span class="text-xs sm:text-sm font-extrabold text-unklab-navy">Kartu Bukti Pendaftaran Terkirim ke Email</span>
-                        <span class="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">Email Otomatis Terkirim</span>
+                        <span class="text-xs sm:text-sm font-extrabold text-emerald-950">Kartu Resmi Telah Dikirim oleh Admin ke Email</span>
+                        <span class="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-300">Terkirim ke Email</span>
                     </div>
                     <p class="text-xs text-slate-600 mt-0.5">
-                        Salinan resmi dalam format <strong>HTML Email Card</strong> telah dikirim ke <strong class="text-unklab-black font-semibold">{{ $application->user?->email }}</strong> pada {{ $application->confirmation_email_sent_at->format('d M Y, H:i') }} WITA.
+                        Kartu tanda bukti pendaftaran resmi dan ucapan selamat telah diverifikasi & dikirim oleh Admin PMB ke <strong class="text-unklab-black font-semibold">{{ $application->user?->email }}</strong> pada {{ $application->confirmation_email_sent_at->format('d M Y, H:i') }} WITA.
                     </p>
                 </div>
             </div>
-
-            <form action="{{ route('pmb.resend_card_email') }}" method="POST" class="flex-shrink-0">
-                @csrf
-                <button type="submit" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white hover:bg-slate-50 border border-unklab-periwinkle/50 text-unklab-navy text-xs font-bold transition-all shadow-sm">
-                    <svg class="w-4 h-4 text-unklab-periwinkle" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                    <span>Kirim Ulang Kartu ke Email</span>
-                </button>
-            </form>
+            <div class="flex-shrink-0 text-xs font-semibold text-emerald-800 bg-white px-3 py-1.5 rounded-xl border border-emerald-200">
+                ✓ Terverifikasi Admin
+            </div>
+        </div>
+    @else
+        <div class="mb-6 bg-amber-50/90 border border-amber-200/90 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm no-print">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs sm:text-sm font-extrabold text-amber-950">Kartu Masuk ke Antrean Admin PMB</span>
+                        <span class="text-[10px] font-bold text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full border border-amber-300">Menunggu Pengiriman Admin</span>
+                    </div>
+                    <p class="text-xs text-slate-600 mt-0.5">
+                        Berkas pendaftaran Anda telah berhasil diserahkan ke sistem panitia. <strong>Admin PMB akan memeriksa data dan mengirimkan Kartu Tanda Bukti Pendaftaran resmi</strong> langsung ke email Anda (<strong class="text-unklab-black">{{ $application->user?->email }}</strong>).
+                    </p>
+                </div>
+            </div>
+            <div class="flex-shrink-0 text-xs font-semibold text-amber-800 bg-white px-3 py-1.5 rounded-xl border border-amber-200">
+                ⏳ Menunggu Admin
+            </div>
         </div>
     @endif
     <div class="mb-6 bg-white rounded-2xl border-l-4 border-emerald-500 border-y border-r border-slate-200 shadow-sm p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 no-print">
@@ -414,14 +429,6 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-            <form action="{{ route('pmb.resend_card_email') }}" method="POST" class="flex-1 sm:flex-none">
-                @csrf
-                <button type="submit" class="w-full px-4 py-3 rounded-xl border border-unklab-periwinkle/40 bg-white hover:bg-slate-50 text-unklab-navy font-bold text-xs sm:text-sm transition-all shadow-sm inline-flex items-center justify-center gap-1.5" title="Kirim Ulang Kartu ke Email Pendaftar">
-                    <svg class="w-4 h-4 text-unklab-periwinkle" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                    <span>Kirim Ulang ke Email</span>
-                </button>
-            </form>
-
             <form action="{{ route('logout') }}" method="POST" class="flex-1 sm:flex-none">
                 @csrf
                 <button type="submit" class="w-full px-5 py-3 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs sm:text-sm transition-all shadow-sm">

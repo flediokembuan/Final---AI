@@ -247,6 +247,7 @@
                                     <th class="py-3 px-4">NAMA & EMAIL PENDAFTAR</th>
                                     <th class="py-3 px-4">PROGRAM STUDI</th>
                                     <th class="py-3 px-4 text-center">STATUS</th>
+                                    <th class="py-3 px-4 text-center">KARTU EMAIL</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100">
@@ -305,10 +306,25 @@
                                                 </span>
                                             @endif
                                         </td>
+
+                                        <!-- Status Pengiriman Kartu oleh Admin -->
+                                        <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                                            @if($app->confirmation_email_sent_at)
+                                                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-emerald-100/80 px-2.5 py-1 rounded-full border border-emerald-300" title="Dikirim: {{ $app->confirmation_email_sent_at->format('d M Y, H:i') }} WITA">
+                                                    <svg class="w-3 h-3 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                                    <span>Terkirim</span>
+                                                </span>
+                                            @else
+                                                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-full border border-slate-300">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                                    <span>Belum Dikirim</span>
+                                                </span>
+                                            @endif
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="py-8 text-center text-slate-400 text-xs">
+                                        <td colspan="5" class="py-8 text-center text-slate-400 text-xs">
                                             Tidak ada data calon mahasiswa yang cocok dengan pencarian.
                                         </td>
                                     </tr>
@@ -417,6 +433,37 @@
                                 </div>
                             </div>
 
+                            <!-- KARTU PENDAFTARAN & PENGIRIMAN EMAIL RESMI OLEH ADMIN -->
+                            <div class="bg-gradient-to-br from-blue-50/80 via-indigo-50/40 to-slate-50 rounded-2xl p-4 border border-blue-200/80 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2.5">
+                                        <div class="w-8 h-8 rounded-xl bg-unklab-navy text-white flex items-center justify-center font-bold text-xs shadow-sm">
+                                            <svg class="w-4 h-4 text-amber-300" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/></svg>
+                                        </div>
+                                        <div>
+                                            <span class="text-xs font-extrabold text-unklab-navy block">Kartu Tanda Bukti Pendaftaran</span>
+                                            <span class="text-[10px] text-slate-500 block" x-text="selected.card_sent ? 'Status: Terkirim (' + selected.card_sent_at + ')' : 'Status: Masuk ke admin, belum dikirim ke email'"></span>
+                                        </div>
+                                    </div>
+                                    <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full"
+                                          :class="selected.card_sent ? 'text-emerald-800 bg-emerald-100 border border-emerald-300' : 'text-amber-800 bg-amber-100 border border-amber-300'"
+                                          x-text="selected.card_sent ? '✓ Terkirim' : '⏳ Belum Dikirim'">
+                                    </span>
+                                </div>
+
+                                <div class="bg-white/80 rounded-xl p-2.5 border border-blue-100 text-[11px] flex items-center justify-between">
+                                    <span class="text-slate-500">Email Calon Mahasiswa:</span>
+                                    <strong class="text-unklab-black font-mono" x-text="selected.email || '—'"></strong>
+                                </div>
+
+                                <button type="button" 
+                                        @click="openSendCardModal()"
+                                        class="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 group">
+                                    <svg class="w-4 h-4 text-emerald-200 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                    <span x-text="selected.card_sent ? 'Kirim Ulang Kartu ke Email Mahasiswa' : 'Kirim Kartu ke Email Mahasiswa'"></span>
+                                </button>
+                            </div>
+
                             <!-- Decision Action Buttons: Approve & Tolak -->
                             <div class="pt-4 border-t border-slate-100 space-y-2">
                                 <form :action="'/admin/applicant/' + selected.id + '/approve'" method="POST">
@@ -482,6 +529,94 @@
         </div>
     </div>
 
+    <!-- Send Registration Card to Email Modal -->
+    <div x-show="sendCardModal.open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" @keydown.escape.window="if(!sendCardModal.loading) sendCardModal.open = false">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative border border-slate-200" @click.away="if(!sendCardModal.loading) sendCardModal.open = false">
+            <button type="button" @click="sendCardModal.open = false" :disabled="sendCardModal.loading" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                </div>
+                <div>
+                    <h3 class="text-base font-extrabold text-unklab-black">Kirim Kartu Bukti Pendaftaran</h3>
+                    <p class="text-xs text-slate-500">Kirim kartu pendaftaran resmi & ucapan selamat ke email calon mahasiswa</p>
+                </div>
+            </div>
+
+            <!-- Recipient Detail Box -->
+            <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-200 text-xs space-y-1.5 mb-4">
+                <div class="flex justify-between">
+                    <span class="text-slate-500 font-semibold">Nama Mahasiswa:</span>
+                    <strong class="text-unklab-black" x-text="selected?.name"></strong>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500 font-semibold">Email Tujuan:</span>
+                    <strong class="text-emerald-700 font-mono" x-text="selected?.email"></strong>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500 font-semibold">Nomor Pendaftaran:</span>
+                    <span class="font-mono font-bold text-unklab-navy" x-text="selected?.reg"></span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500 font-semibold">Program Studi:</span>
+                    <span class="font-bold text-slate-700" x-text="selected?.prodi"></span>
+                </div>
+            </div>
+
+            <!-- Custom Message / Ucapan Selamat Form -->
+            <div class="space-y-2 mb-4">
+                <label class="block text-xs font-bold text-slate-700">
+                    Template Kata Ucapan Selamat:
+                </label>
+                <textarea 
+                    x-model="sendCardModal.note" 
+                    rows="3" 
+                    class="w-full text-xs p-3 rounded-xl border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-slate-700"
+                    placeholder="Tulis ucapan selamat resmi untuk mahasiswa baru..."></textarea>
+                <p class="text-[10px] text-slate-400">
+                    * Email yang dikirimkan berisi template ucapan selamat resmi dan kartu pendaftaran dengan desain identik seperti pada sistem.
+                </p>
+            </div>
+
+            <!-- Live Status Alert -->
+            <template x-if="sendCardModal.successMsg">
+                <div class="mb-4 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs p-3 rounded-xl flex items-center gap-2">
+                    <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    <span x-text="sendCardModal.successMsg"></span>
+                </div>
+            </template>
+            <template x-if="sendCardModal.errorMsg">
+                <div class="mb-4 bg-rose-50 border border-rose-200 text-rose-800 text-xs p-3 rounded-xl flex items-center gap-2">
+                    <svg class="w-4 h-4 text-rose-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    <span x-text="sendCardModal.errorMsg"></span>
+                </div>
+            </template>
+
+            <!-- Buttons -->
+            <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                <button type="button" 
+                        @click="sendCardModal.open = false" 
+                        :disabled="sendCardModal.loading"
+                        class="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-50 text-xs font-bold transition-all">
+                    Batal
+                </button>
+                <button type="button" 
+                        @click="submitSendCard()" 
+                        :disabled="sendCardModal.loading"
+                        class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white text-xs font-bold transition-all shadow-md inline-flex items-center gap-2">
+                    <svg x-show="sendCardModal.loading" class="animate-spin w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    <span x-text="sendCardModal.loading ? 'Mengirim Email...' : 'Kirim Sekarang ke Email'"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
 </div>
 @endsection
 
@@ -496,6 +631,51 @@ function adminDashboard(config) {
             filename: '',
             summary: '',
             isValid: true
+        },
+        sendCardModal: {
+            open: false,
+            loading: false,
+            note: 'Selamat! Anda telah berhasil menyelesaikan tahapan pendaftaran PMB di Universitas Klabat Tahun Akademik 2026/2027. Kartu tanda bukti pendaftaran resmi Anda terlampir di bawah ini.',
+            successMsg: '',
+            errorMsg: ''
+        },
+        openSendCardModal() {
+            this.sendCardModal.open = true;
+            this.sendCardModal.successMsg = '';
+            this.sendCardModal.errorMsg = '';
+            this.sendCardModal.loading = false;
+        },
+        async submitSendCard() {
+            if (!this.selected) return;
+            this.sendCardModal.loading = true;
+            this.sendCardModal.successMsg = '';
+            this.sendCardModal.errorMsg = '';
+            try {
+                const response = await fetch(`/admin/applicant/${this.selected.id}/send-card`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ note: this.sendCardModal.note })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    this.sendCardModal.successMsg = data.message;
+                    this.selected.card_sent = true;
+                    this.selected.card_sent_at = data.card_sent_at;
+                    setTimeout(() => {
+                        this.sendCardModal.open = false;
+                    }, 2500);
+                } else {
+                    this.sendCardModal.errorMsg = data.message || 'Gagal mengirim email kartu.';
+                }
+            } catch (err) {
+                this.sendCardModal.errorMsg = 'Terjadi kesalahan sistem saat mengirim email: ' + err.message;
+            } finally {
+                this.sendCardModal.loading = false;
+            }
         },
         async selectApplicant(id) {
             try {
@@ -515,6 +695,8 @@ function adminDashboard(config) {
                     age_formatted: data.age_formatted,
                     is_under_17: data.is_under_17,
                     status: data.status,
+                    card_sent: data.card_sent,
+                    card_sent_at: data.card_sent_at,
                     documents: data.documents.map(d => ({
                         id: d.id,
                         type: d.document_type,
